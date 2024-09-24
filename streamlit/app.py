@@ -8,7 +8,7 @@ current_dir = os.path.dirname(__file__)
 other_dir = os.path.join(current_dir, '..', 'new-model')
 other_dir = os.path.abspath(other_dir)
 
-parameter_path = os.path.join(other_dir, 'result', 'GA.json')
+parameter_path = os.path.join(other_dir, 'results', 'GA.json')
 data_path = os.path.join(other_dir, 'data', 'Lending-Data-Ethereum_Normalized.csv')
 
 

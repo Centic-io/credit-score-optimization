@@ -1,2 +1,9 @@
-keras == 2.15.0
+keras==2.15.0
+tensorflow==2.15.0
+jupyterlab
 seaborn == 0.13.1
+pymongo
+python-dotenv
+pandas
+scikit-learn
+matplotlib
