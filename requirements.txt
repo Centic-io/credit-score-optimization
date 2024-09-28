@@ -7,3 +7,5 @@ python-dotenv
 pandas
 scikit-learn
 matplotlib
+SQLAlchemy~=1.4.46
+psycopg2-binary
