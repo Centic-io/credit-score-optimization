@@ -2,7 +2,7 @@ import json
 
 from matplotlib.backend_tools import cursors
 from pymongo import MongoClient
-etl_connection = MongoClient("mongodb://etlReader:etl_readerBlockChain341@35.247.145.162:27017,34.124.133.164:27017,34.124.205.24:27017/")
+etl_connection = MongoClient("mongodb://localhost:27017/")
 local_connection = MongoClient("mongodb://localhost:27017")
 
 with open('src/data/debtors.json', 'r') as f:
