@@ -5,7 +5,7 @@ from sqlalchemy.engine.reflection import Inspector
 from sqlalchemy.orm import sessionmaker
 
 Session = sessionmaker()
-engine = create_engine("postgresql://centic_write:centic2themoon@34.126.75.56:5432/postgres")
+engine = create_engine("postgresql://***:***@34.126.75.56:5432/postgres")
 Session.configure(bind=engine)
 
 with open('src/data/debtors.json', 'r') as f:
