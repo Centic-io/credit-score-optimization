@@ -1,35 +1,3 @@
-class Wallets:
-    number_of_liquidation = "numberOfLiquidation"
-    total_value_of_liquidation = "totalValueOfLiquidation"
-    frequency_of_dapp_transactions = "frequencyOfDappTransactions"
-    number_of_interacted_dapps = "numberOfInteractedDapps"
-    types_of_interacted_dapps = "typesOfInteractedDapps"
-    number_of_reputable_dapps = "numberOfReputableDapps",
-    frequency_of_transaction = "frequencyOfTransaction"
-    total_asset = "totalAsset"
-    frequency_mount_of_transaction = "frequencyMountOfTransaction"
-    borrow_per_balance = "borrow_per_balance"
-    borrow_per_deposit = "borrow_per_deposit"
-    average_total_asset = "averageTotalAsset"
-    deposit_per_asset = "deposit_per_asset"
-    age = "age"
-    columns = [
-        number_of_liquidation,
-        total_value_of_liquidation,
-        frequency_of_dapp_transactions,
-        number_of_interacted_dapps,
-        types_of_interacted_dapps,
-        number_of_reputable_dapps,
-        frequency_of_transaction,
-        total_asset,
-        frequency_mount_of_transaction,
-        borrow_per_balance,
-        borrow_per_deposit,
-        average_total_asset,
-        deposit_per_asset,
-        age
-    ]
-
 class TimeConstants:
     A_MINUTE = 60
     MINUTES_5 = 300
@@ -40,23 +8,27 @@ class TimeConstants:
     DAYS_30 = 30 * A_DAY
     A_YEAR = 365 * A_DAY
 
+
 class Chain:
     bsc = "bsc"
     ftm = "ftm"
-    eth = "ethereum"
-    polygon = 'polygon'
-    arbitrum = 'arbitrum'
-    optimism = 'optimism'
-    avalanche = 'avalanche'
+    eth = "eth"
+    poly = "poly"
+    arb = "arb"
     mapping = {
         bsc: "0x38",
         ftm: "0xfa",
         eth: "0x1",
-        polygon: "0x89",
-        arbitrum: "0xa4b1",
-        optimism: "0xa",
-        avalanche: "0xa86a"
+        poly: "0x89",
+        arb: "0xa4b1",
     }
+    prefix = {
+        mapping[bsc]: "",
+        mapping[poly]: "polygon",
+        mapping[eth]: 'ethereum',
+        mapping[arb]: "arbitrum"
+    }
+
 
 class Amount:
     liquidated_collateral_amount_in_usd = "liquidated_collateral_amount_in_usd"
@@ -73,6 +45,7 @@ class Amount:
         debt_to_cover_in_usd: "debt_asset"
     }
 
+
 class CompoundForks:
     mapping = {
         "venus": "0x38_0xfd36e2c2a6789db23113685031d7f16329158384",
@@ -82,13 +55,12 @@ class CompoundForks:
     bsc = ["venus", "cream"]
     eth = ["compound"]
     ftm = []
-    polygon = []
     chain = {
         "0x38": bsc,
         "0x1": eth,
-        "0xfa": ftm,
-        "0x89": polygon
+        "0xfa": ftm
     }
+
 
 class RemoveToken:
     tokens = [
@@ -98,17 +70,21 @@ class RemoveToken:
         "0x78366446547d062f45b4c0f320cdaa6d710d87bb",
     ]
 
+
 class GraphCreditScoreConfigKeys:
+    # TODO: new formula
     wallet_statistics = 'wallet_statistics_v3'
     token_statistics = 'token_statistics'
     multichain_wallets_flagged_state = 'multichain_wallets_flagged_state'
     wallets_flagged_state = 'wallets_flagged_state'
     monitor_day = 'monitor_day'
 
+
 class ArangoIndexConstant:
     multichain_wallet_flagged = 'multichain_wallet_flagged'
     multichain_wallet_scores_addresses = 'multichain_wallet_scores_addresses'
     multichain_wallet_scores_flagged = 'multichain_wallet_scores_flagged'
+
 
 class ChainConstant:
     bsc_chain_id = '0x38'
@@ -122,11 +98,13 @@ class ChainConstant:
     all = [ftm_chain_id, polygon_chain_id, bsc_chain_id, eth_chain_id]
     names = [ftm_chain_name, polygon_chain_name, bsc_chain_name, eth_chain_name]
 
+
 class TimeConstant:
     A_HOUR = 60 * 60
     A_DAY = A_HOUR * 24
     DAYS_7 = A_DAY * 7
     DAYS_30 = A_DAY * 30
+
 
 class TokenCollections:
     mappings = {
@@ -144,6 +122,7 @@ class TokenCollections:
         'credit_score_x7': {'value': 'creditScorex7', 'logs': 'creditScorex7ChangeLogs'}
     }
 
+
 class WalletStatisticFieldConstant:
     total_asset = 'total_asset'
     age_of_account = 'age_of_account'
@@ -151,8 +130,11 @@ class WalletStatisticFieldConstant:
     frequency_of_transaction = 'frequency_of_transaction'
     deposit = 'deposit'
     borrow = 'borrow'
-    frequency_of_dapp_transaction = 'frequency_of_dapp_transaction'
+    frequency_of_dapp_transaction = 'frequency_dapp_txs'
+    reputation_interacted_projects = 'reputation_interacted_projects'
     number_of_dapps = 'number_of_dapps'
+    interacted_dapp_types = 'interacted_dapp_types'
+
 
 class WalletCreditScoreWeightConstantV3:
     a1 = 0.25
@@ -180,33 +162,15 @@ class WalletCreditScoreWeightConstantV3:
     b71 = 0.6
     b72 = 0.4
 
-class WalletCreditScoreWeightConstant:
-    a1 = 0.3
-    a2 = 0.4
-    a3 = 0.15
-    a4 = 0.1
-    a5 = 0.05
-
-    b11 = 0.04
-    b12 = 0.96
-    b21 = 0.4
-    b22 = 0.1
-    b23 = 0.2
-    b24 = 0.1
-    b25 = 0.2
-    b31 = 0.6
-    b32 = 0.4
-    b41 = 1.0
-    b51 = 0.6
-    b52 = 0.4
 
 class WalletCreditScoreFunctionConstant:
-    score_low = 500
-    score_high = 1000
+    score_low = 690
+    score_high = 850
     asset_high = 2e8
     amount_high = 15e7
     frequency_high = 3000
     timestamp_ethereum_beginning = 1438244788
+
 
 class KDaysWeightConstant:
     a1 = 0.6
