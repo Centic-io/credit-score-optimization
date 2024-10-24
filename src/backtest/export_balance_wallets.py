@@ -47,7 +47,7 @@ class ExportBalanceWalletJob(CLIJob):
         cursor = self.exporter.get_documents("multichain_wallets",{"_id": {"$in": wallets}})
         self.queries = {}
         for wallet in cursor:
-            if wallet.get("exported"):
+            if wallet.get("exported_chain", {}).get(self.chain_id):
                 continue
             dict_tokens = wallet.get("tokens")
             if not dict_tokens:
@@ -87,7 +87,9 @@ class ExportBalanceWalletJob(CLIJob):
                     data[address] = {
                         "_id": address,
                         "tokenChangeLogs": {},
-                        "exported": True
+                        "exported_chain": {
+                            self.chain_id: True
+                        }
                     }
                 token_key = f"{self.chain_id}_{token}"
                 if token_key not in data[address]["tokenChangeLogs"]:
