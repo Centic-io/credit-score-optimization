@@ -1,5 +1,6 @@
 import json
 import os
+import time
 
 from defi_services.constants.query_constant import Query
 from defi_services.jobs.processors.multi_call_state_processor import MultiCallStateProcessor
@@ -10,6 +11,7 @@ from src.backtest.database.klg_mongodb import MongoDbKLG
 from src.backtest.database.memory_storage import MemoryStorage
 from src.backtest.database.mongodb import MongoDB
 from src.constants.constants_v3 import Chain
+from src.constants.network_constants import NATIVE_TOKEN
 from src.utils.logger_utils import get_logger
 
 load_dotenv()
@@ -45,7 +47,14 @@ class ExportBalanceWalletJob(CLIJob):
         cursor = self.exporter.get_documents("multichain_wallets",{"_id": {"$in": wallets}})
         self.queries = {}
         for wallet in cursor:
-            for key, value in wallet.get("tokens").items():
+            if wallet.get("exported"):
+                continue
+            dict_tokens = wallet.get("tokens")
+            if not dict_tokens:
+                dict_tokens = wallet.get("depositTokens")
+            if f"{self.chain_id}_{NATIVE_TOKEN}" not in dict_tokens:
+                dict_tokens[f"{self.chain_id}_{NATIVE_TOKEN}"] = 1
+            for key, value in dict_tokens.items():
                 if not value:
                     continue
                 chain_id, token = key.split('_')[0], key.split('_')[1]
@@ -67,32 +76,23 @@ class ExportBalanceWalletJob(CLIJob):
     def _execute(self, *args, **kwargs):
         keys = list(self.wallets.keys())
         for idx in range(0, len(keys), 100):
+            begin = time.time()
             self._prepare_queries(keys[idx:idx+100])
             response_data = self.multicall.run(self.queries, batch_size=2000, max_workers=1, ignore_error=True)
-            for key, value in response_data:
-                pass
-
-if __name__ == "__main__":
-    with open("balance_timestamp.json", "r") as f:
-        wallets = json.loads(f.read())
-    for chain in ["0x38", "0x1", "0x89", "0xa4b1"]:
-        wallet_timestamps = {key: value[chain] for key, value in wallets.items() }
-        prefix = Chain.prefix.get(chain)
-        _importer = MongoDB(os.environ.get("MONGO_MAIN"), "blockchain_etl", prefix)
-        _exporter = MongoDB("mongodb://localhost:27017/", "knowledge_graph")
-        _klg_db = MongoDbKLG(os.environ.get("ENTITIES_DB"), chain_id=chain)
-        _protocol_db = MongoDB(os.environ.get("DAPP_INFO_DB"), "SmartContractLabel")
-        if not prefix:
-            prefix = "bsc"
-        provider = os.environ.get(f"{prefix.upper()}_PROVIDER")
-        job = ExportBalanceWalletJob(
-            chain_id=chain,
-            importer=_importer,
-            exporter=_exporter,
-            klg_db=_klg_db,
-            protocol_db=_protocol_db,
-            batch_size=1000,
-            wallets=wallet_timestamps,
-            provider=provider
-        )
-        job.run()
+            data = {}
+            for key, value in response_data.items():
+                split_key = key.split("_")
+                address, token, timestamp = split_key[-1], split_key[1], split_key[0]
+                if address not in data:
+                    data[address] = {
+                        "_id": address,
+                        "tokenChangeLogs": {},
+                        "exported": True
+                    }
+                token_key = f"{self.chain_id}_{token}"
+                if token_key not in data[address]["tokenChangeLogs"]:
+                    data[address]["tokenChangeLogs"][token_key] = {}
+                data[address]["tokenChangeLogs"][token_key][str(timestamp)]={"amount": value.get('token_balance', 0)}
+            result = list(data.values())
+            self.exporter.update_documents("multichain_wallets", result)
+            logger.info(f"Export 100 {self.chain_id} wallets in {time.time()-begin}s")
