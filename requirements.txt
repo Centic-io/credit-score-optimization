@@ -10,4 +10,4 @@ matplotlib
 SQLAlchemy~=1.4.46
 psycopg2-binary
 web3~=6.0.0
-defi-state-querier
+defi-state-querier==0.5.13

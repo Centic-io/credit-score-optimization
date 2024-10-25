@@ -52,11 +52,11 @@ class ExportBalanceWalletJob(CLIJob):
             dict_tokens = wallet.get("tokens")
             if not dict_tokens:
                 dict_tokens = wallet.get("depositTokens")
-            if f"{self.chain_id}_{NATIVE_TOKEN}" not in dict_tokens:
-                dict_tokens[f"{self.chain_id}_{NATIVE_TOKEN}"] = 1
+            for key in dict_tokens:
+                if key.split('_')[0] == self.chain_id and f"{self.chain_id}_{NATIVE_TOKEN}" not in dict_tokens:
+                    dict_tokens[f"{self.chain_id}_{NATIVE_TOKEN}"] = 1
+                    break
             for key, value in dict_tokens.items():
-                if not value:
-                    continue
                 chain_id, token = key.split('_')[0], key.split('_')[1]
                 if chain_id != self.chain_id:
                     continue
@@ -78,6 +78,8 @@ class ExportBalanceWalletJob(CLIJob):
         for idx in range(0, len(keys), 100):
             begin = time.time()
             self._prepare_queries(keys[idx:idx+100])
+            if not self.queries:
+                continue
             response_data = self.multicall.run(self.queries, batch_size=2000, max_workers=1, ignore_error=True)
             data = {}
             for key, value in response_data.items():
