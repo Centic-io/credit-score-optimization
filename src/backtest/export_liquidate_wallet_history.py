@@ -164,7 +164,7 @@ class ExportLiquidatedWalletJob(CLIJob):
                 self.protocol_name[ctoken] = protocol_name
 
 if __name__ == "__main__":
-    with open("debtor_type.json", "r") as f:
+    with open("debtor_type2.json", "r") as f:
         wallets = json.loads(f.read())
     wallets = [key for key, value in wallets.items() if value == "wallet"]
     for chain in ["0x38", "0x1", "0x89", "0xa4b1"]:

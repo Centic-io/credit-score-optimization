@@ -49,7 +49,7 @@ class ExportBalanceWalletJob(CLIJob):
         for wallet in cursor:
             if wallet.get("exported_chain", {}).get(self.chain_id):
                 continue
-            dict_tokens = wallet.get("tokens")
+            dict_tokens = wallet.get("tokenChangeLogs")
             if not dict_tokens:
                 dict_tokens = wallet.get("depositTokens")
             for key in dict_tokens:

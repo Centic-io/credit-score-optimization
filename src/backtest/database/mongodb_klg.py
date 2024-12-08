@@ -3,12 +3,12 @@ import sys
 import pymongo
 from pymongo import MongoClient, UpdateOne
 
-from config import MongoConfig
-from constants.mongo_constants import MongoDBCollections
-from utils.dict_utils import flatten_dict, delete_none
-from utils.logger_utils import get_logger
-from utils.retry_handler import retry_handler
-from utils.time_execute_decorator import sync_log_time_exe, TimeExeTag
+from src.backtest.config import MongoConfig
+from src.constants.mongo_constants import MongoDBCollections
+from src.utils.dict_utils import flatten_dict, delete_none
+from src.utils.logger_utils import get_logger
+from src.utils.retry_handler import retry_handler
+from src.utils.time_execute_decorator import sync_log_time_exe, TimeExeTag
 
 logger = get_logger('MongoDBKLG')
 
@@ -37,80 +37,6 @@ class MongoDBKLG:
         self._abi_col = self.mongo_db[MongoDBCollections.abi]
         self._configs_col = self.mongo_db[MongoDBCollections.configs]
         self._is_part_ofs_col = self.mongo_db[MongoDBCollections.is_part_ofs]
-
-        # self._create_index()
-
-    #######################
-    #       Index         #
-    #######################
-
-    def _create_index(self):
-        # Wallet index
-        wallets_col_indexes = self._wallets_col.index_information()
-        if 'wallets_flagged_chainId_index' not in wallets_col_indexes:
-            self._wallets_col.create_index(
-                [('flagged', pymongo.ASCENDING), ('chainId', pymongo.ASCENDING)],
-                name='wallets_flagged_chainId_index', background=True
-            )
-        if 'wallets_tags_index' not in wallets_col_indexes:
-            self._wallets_col.create_index(
-                [('tags', pymongo.ASCENDING)],
-                name='wallets_tags_index', background=True, sparse=True
-            )
-        if 'wallets_newElite_chainId_index' not in wallets_col_indexes:
-            self._wallets_col.create_index(
-                [('newElite', pymongo.ASCENDING), ('chainId', pymongo.ASCENDING)],
-                name='wallets_newElite_chainId_index', background=True, sparse=True
-            )
-        if 'wallets_newTarget_chainId_index' not in wallets_col_indexes:
-            self._wallets_col.create_index(
-                [('newTarget', pymongo.ASCENDING), ('chainId', pymongo.ASCENDING)],
-                name='wallets_newTarget_chainId_index', background=True, sparse=True
-            )
-        if 'wallets_elite_chainId_index' not in wallets_col_indexes:
-            self._wallets_col.create_index(
-                [('elite', pymongo.ASCENDING), ('chainId', pymongo.ASCENDING)],
-                name='wallets_elite_chainId_index', background=True, sparse=True
-            )
-        if 'wallets_selective_index' not in wallets_col_indexes:
-            self._wallets_col.create_index(
-                [('selective', pymongo.ASCENDING)],
-                name='wallets_selective_index', background=True, sparse=True
-            )
-
-        # Multichain wallet index
-        multichain_wallets_col_indexes = self._multichain_wallets_col.index_information()
-        if 'multichain_wallets_flagged_index' not in multichain_wallets_col_indexes:
-            self._multichain_wallets_col.create_index(
-                [('flagged', pymongo.ASCENDING)],
-                name='multichain_wallets_flagged_index', background=True
-            )
-
-        # Project index
-        projects_col_indexes = self._projects_col.index_information()
-        if 'projects_sources_index' not in projects_col_indexes:
-            self._projects_col.create_index(
-                [('sources', pymongo.ASCENDING)],
-                name='projects_sources_index', background=True
-            )
-        if 'projects_deployedChains_index' not in projects_col_indexes:
-            self._projects_col.create_index(
-                [('deployedChains', pymongo.ASCENDING)],
-                name='projects_deployedChains_index', background=True
-            )
-
-        # Contract index
-        contracts_col_indexes = self._smart_contracts_col.index_information()
-        if 'smart_contracts_tags_index' not in contracts_col_indexes:
-            self._smart_contracts_col.create_index(
-                [('tags', pymongo.ASCENDING)],
-                name='smart_contracts_tags_index', background=True
-            )
-        if 'smart_contracts_idCoingecko_index' not in contracts_col_indexes:
-            self._smart_contracts_col.create_index(
-                [('idCoingecko', pymongo.ASCENDING)],
-                name='smart_contracts_idCoingecko_index', background=True, sparse=True
-            )
 
     #######################
     #      Project        #
